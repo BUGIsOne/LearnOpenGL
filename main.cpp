@@ -113,14 +113,18 @@ int main() {
 	unsigned int VBO, VAO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
+
+	//前面都是初始化代码
 	//把创建的对象绑定到缓冲类型GL_ARRAY_BUFFER上
 	glBindVertexArray(VAO);
+	//把顶点数组复制到一个顶点缓冲中，供opengl使用
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	//设定顶点属性指针
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-
+	//解绑
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
@@ -138,7 +142,7 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		
-		//激活程序
+		//激活程序，绘制代码
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
