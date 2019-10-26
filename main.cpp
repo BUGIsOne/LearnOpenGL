@@ -18,20 +18,20 @@ const char* vertexShaderSource = "#version 330 core\n"
 "}\0";
 
 const char* fragmentShaderSource = "#version 330 core\n"
-"out ver4 PragColor;\n"
+"out vec4 FragColor;\n"
 "void main()\n"
 "{\n"
 "	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\n\0";
 
 int main() {
-	// ÊµÀı»¯GLFW´°¿Ú
+	// å®ä¾‹åŒ–GLFWçª—å£
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	//´´½¨´°¿Ú¶ÔÏó
+	//åˆ›å»ºçª—å£å¯¹è±¡
 	//GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
 	if (window == NULL)
@@ -42,10 +42,10 @@ int main() {
 	}
 	glfwMakeContextCurrent(window);
 
-	//×¢²áframebuffer_size_callbackº¯Êı£¬¸æËßGLFWÃ¿¸Ä±ä´°¿Ú´óĞ¡Ê±µ÷ÓÃ
+	//æ³¨å†Œframebuffer_size_callbackå‡½æ•°ï¼Œå‘Šè¯‰GLFWæ¯æ”¹å˜çª—å£å¤§å°æ—¶è°ƒç”¨
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	//ÔÚµ÷ÓÃÈÎºÎopenglº¯ÊıÇ°£¬³õÊ¼»¯GLAD
+	//åœ¨è°ƒç”¨ä»»ä½•openglå‡½æ•°å‰ï¼Œåˆå§‹åŒ–GLAD
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		cout << "Failed to initialize GLAD" << endl;
@@ -56,7 +56,7 @@ int main() {
 	// ----------------
 	// vertex shader
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	//°Ñ×ÅÉ«Æ÷Ô´Âë¸½¼Óµ½×ÅÉ«Æ÷¶ÔÏóÉÏ£¬È»ºó±àÒëËü
+	//æŠŠç€è‰²å™¨æºç é™„åŠ åˆ°ç€è‰²å™¨å¯¹è±¡ä¸Šï¼Œç„¶åç¼–è¯‘å®ƒ
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 	glCompileShader(vertexShader);
 
@@ -84,7 +84,7 @@ int main() {
 		cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << endl;
 	}
 
-	//Á¬½ÓÁ½¸ö×ÅÉ«Æ÷£¬Éú³ÉÓÃÀ´äÖÈ¾µÄ×ÅÉ«Æ÷³ÌĞò
+	//è¿æ¥ä¸¤ä¸ªç€è‰²å™¨ï¼Œç”Ÿæˆç”¨æ¥æ¸²æŸ“çš„ç€è‰²å™¨ç¨‹åº
 	unsigned int shaderProgram = glCreateProgram();
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
@@ -101,7 +101,7 @@ int main() {
 	glDeleteShader(fragmentShader);
 
 	// set up vertex data
-	//¶¥µãÊäÈë, Ã¿ÁĞ·Ö±ğ±íÊ¾x, y, z
+	//é¡¶ç‚¹è¾“å…¥, æ¯åˆ—åˆ†åˆ«è¡¨ç¤ºx, y, z
 	float vertices[] = {
 		-0.5f, -0.5f, 0.0,
 		0.5f, -0.5f, 0.0f,
@@ -109,47 +109,47 @@ int main() {
 	};
 
 
-	// »º³å¶ÔÏó
+	// ç¼“å†²å¯¹è±¡
 	unsigned int VBO, VAO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 
-	//Ç°Ãæ¶¼ÊÇ³õÊ¼»¯´úÂë
-	//°Ñ´´½¨µÄ¶ÔÏó°ó¶¨µ½»º³åÀàĞÍGL_ARRAY_BUFFERÉÏ
+	//å‰é¢éƒ½æ˜¯åˆå§‹åŒ–ä»£ç 
+	//æŠŠåˆ›å»ºçš„å¯¹è±¡ç»‘å®šåˆ°ç¼“å†²ç±»å‹GL_ARRAY_BUFFERä¸Š
 	glBindVertexArray(VAO);
-	//°Ñ¶¥µãÊı×é¸´ÖÆµ½Ò»¸ö¶¥µã»º³åÖĞ£¬¹©openglÊ¹ÓÃ
+	//æŠŠé¡¶ç‚¹æ•°ç»„å¤åˆ¶åˆ°ä¸€ä¸ªé¡¶ç‚¹ç¼“å†²ä¸­ï¼Œä¾›openglä½¿ç”¨
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	//Éè¶¨¶¥µãÊôĞÔÖ¸Õë
+	//è®¾å®šé¡¶ç‚¹å±æ€§æŒ‡é’ˆ
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	//½â°ó
+	//è§£ç»‘
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
 
-	//Ñ­»·äÖÈ¾
+	//å¾ªç¯æ¸²æŸ“
 	while (!glfwWindowShouldClose(window))
 	{
-		//ÊäÈë
+		//è¾“å…¥
 		processInput(window);
 
-		//äÖÈ¾Ö¸Áî
+		//æ¸²æŸ“æŒ‡ä»¤
 		//-------------------
-		//×Ô¶¨ÒåÑÕÉ«Çå¿ÕÆÁÄ»
+		//è‡ªå®šä¹‰é¢œè‰²æ¸…ç©ºå±å¹•
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		
-		//¼¤»î³ÌĞò£¬»æÖÆ´úÂë
+		//æ¿€æ´»ç¨‹åºï¼Œç»˜åˆ¶ä»£ç 
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		
 
 
-		//¼ì²é²¢µ÷ÓÃÊÂ¼ş£¬½»»»»º³å
+		//æ£€æŸ¥å¹¶è°ƒç”¨äº‹ä»¶ï¼Œäº¤æ¢ç¼“å†²
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -157,21 +157,21 @@ int main() {
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 
-	// ÊÍ·Å×ÊÔ´
+	// é‡Šæ”¾èµ„æº
 	glfwTerminate();
 
 	return 0;
 }
 
-// °´¼ü¼ì²éÊÇ·ñ°´ÏÂÁËEsc
+// æŒ‰é”®æ£€æŸ¥æ˜¯å¦æŒ‰ä¸‹äº†Esc
 void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 }
 
-//µ±ÓÃ»§¸Ä±ä´°¿ÚµÄ´óĞ¡Ê±£¬ÊÓ¿ÚÒ²Ó¦±»µ÷Õû£¬¶Ô´°¿Ú×¢²áÒ»¸ö»Øµ÷º¯Êı
-//ÔÚÃ¿´Î´°¿Ú´óĞ¡±»µ÷ÕûÊ±µ÷ÓÃ
+//å½“ç”¨æˆ·æ”¹å˜çª—å£çš„å¤§å°æ—¶ï¼Œè§†å£ä¹Ÿåº”è¢«è°ƒæ•´ï¼Œå¯¹çª—å£æ³¨å†Œä¸€ä¸ªå›è°ƒå‡½æ•°
+//åœ¨æ¯æ¬¡çª—å£å¤§å°è¢«è°ƒæ•´æ—¶è°ƒç”¨
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
