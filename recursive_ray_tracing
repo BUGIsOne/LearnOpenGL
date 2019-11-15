@@ -1,0 +1,78 @@
+#include <iostream>
+#include "ray.h"
+#define MAX_RAY_Depth 3
+
+color Trace(const ray &r, int depth)
+{
+    Object *object = nullptr;
+    float minDist = INFINITY;
+    vec3 pHit;
+    vec3 nHit;
+    for(int k=0; k<objects.size(); k++)
+    {
+        if(Intersect(objects[k], r, &pHit, &nHit))
+        {
+            // ray origin = eye position of it's the prim ray
+            float distance = Distance(r.origin, pHit);
+            if(distance < minDist)
+            {
+                object = objects[k];
+                minDist = distance;
+            }
+        }
+    }
+
+    if(object == nullptr)
+        return 0;
+
+    // if the object material is glass, split the ray 
+    // into a reflection, and a refraction ray
+    if(object->isGlass && depth < MAX_RAY_Depth)
+    {
+        // compute reflection
+        ray reflectionRay;
+        reflectionRay = computeReflectionRay(r.direction(), nHit);
+        // recurse
+        color reflectionColor = Trace(reflectionRay, depth+1);
+        
+        ray refractionRay;
+        refractionRay = computeRefractionRay(
+            object->indexOfRefraction, r.direction(), nHit);
+        // recurse
+        color refractionColor = Trace(refractionRay, depth+1);
+        
+        float Kr, Kt;
+        fresnel(object->indexOfRefraction, nHit,
+            r.direction(), &Kr, &Kt);
+
+        return reflectionColor*Kr + refractionColor*(1-Kr);
+    }
+
+    // object is a diffuse opaque object, compute illumination
+    ray shadowRay;
+    shadowRay.direction() = lightPosition - pHit;
+    bool isShadow = false;
+    for(int k=0; k<objects.size(); k++)
+    {
+        if(Intersect(objects[k], shadowRay))
+        {
+            // hit point is in shadow
+            return 0;
+        }
+    }
+
+    // point is illuminated
+    return object->color * light.brightness;
+}
+
+for(int j=0; j<imageHeight; j++)
+{
+    for(int i=0; i<imageWidth; i++)
+    {
+        // compute primary ray direction
+        ray primRay;
+        computePrimRay(i, j, &primRay);
+        pixels[i][j] = Trace(primRay, 0);
+    }
+}
+
