@@ -6,7 +6,7 @@
 #include <iostream>
 #include <cassert>
 #define M_PI 3.14159265358979323846
-#define INFINITY 1e8
+
 
 using namespace std;
 
@@ -31,7 +31,8 @@ public:
 
     Vec3<T> operator * (const T &f) const { return Vec3<T>(x*f, y*f, z*f); }
     Vec3<T> operator * (const Vec3<T> &v) const { return Vec3<T>(x*v.x, y*v.y, z*v.z); }
-    T dot(const Vec3<T> &v) const{ return x*v.x + y*v.y + z*v.z; }
+    T dot(const Vec3<T> &v) const { return x*v.x + y*v.y + z*v.z; }
+    Vec3<T> cross(const Vec3f<T> &v) const { return Vec3f<T>(y*v.z-z*v.y, z*v.x-x*v.z, x*v.y-y*v.x); }
     Vec3<T> operator - (const Vec3<T> &v) const { return Vec3<T>(x-v.x, y-v.y, z-v.z); }
     Vec3<T> operator + (const Vec3<T> &v) const { return Vec3<T>(x+v.x, y+v.y, z+v.z); }
     Vec3<T>& operator += (const Vec3<T> &v) { x += v.x, y += v.y, z += v.z; return *this; }
@@ -116,6 +117,7 @@ Vec3f trace(
         float t0 = INFINITY, t1 = INFINITY;
         if(spheres[i].intersect(rayOrigin, rayDirection, t0, t1))
         {
+            // t0 < 0, there will be only one intersected point
             if(t0 < 0)
                 t0 = t1;
             if(t0 < tnear)
@@ -139,7 +141,7 @@ Vec3f trace(
     
     // if the normal and the view direction are not opposite to each other
     // reverse the normal direction
-    // we are inside he sphere
+    // we are inside the sphere
     // finally reverse the sign of IdotN which we want positive
     float bias = 1e-4;
     bool inside = false;
@@ -183,6 +185,7 @@ Vec3f trace(
     {
         // it's a diffuse object, no need to raytrace any further
         for(unsigned i=0; i< spheres.size(); i++)
+            // ???????
             if(spheres[i].emissionColor.x > 0)
             {
                 // this is a light
@@ -219,8 +222,8 @@ void render(const vector<Sphere> &spheres)
 {
     unsigned width = 640, height = 480;
     Vec3f *image = new Vec3f[width * height], *pixel = image;
-    float invWidth = 1/float(width), invHeight = 1/float(height);
-    float fov = 30, aspectRatio = width/float(height);
+    float invWidth = 1/(float)width, invHeight = 1/(float)height;
+    float fov = 30, aspectRatio = width/(float)height;
     float angle = tan(M_PI * 0.5 * fov/180.);
 
     // trace rays
@@ -251,7 +254,7 @@ void render(const vector<Sphere> &spheres)
 }
 
 
-int main(int argc, char **argv)
+int main()
 {
     srand(13);
     vector<Sphere> spheres;
