@@ -6,6 +6,7 @@
 #include "drand48.h"
 
 #define MAX_ITER 10e8
+#define M_PI 3.14159265358979323846
 
 using namespace std;
 
@@ -46,6 +47,50 @@ public:
         return os;
     }
 
+    Vec3<T> sphericalToCartesian(const T &theta, const T &phi)
+    {
+        return Vec3<T>(cos(phi)*sin(theta), sin(phi)*sin(theta), cos(theta));
+    }
+
+    inline T sphericalTheta(const Vec3<T> &v)
+    {
+        // more safer, v should be normalised before being input
+        return acos(clamp<T>(v[2], -1, 1));
+    }
+
+    inline T sphericalPhi(const Vec3<T> &v)
+    {
+        T p = atan2(v[1], v[0]);
+        return (p < 0) ? p + 2*M_PI : p;
+    }
+    
+    inline T cosTheta(const Vec3<T> &w) { return w[2]; }
+    
+    inline T sinTheta2(const Vec3<T> &w)
+    {
+        return max(T(0), 1 - cosTheta(w)*cosTheta(w));
+    }
+    inline T sinTheta(const Vec3<T> &w)
+    {
+        return sqrt(sinTheta2(w));
+    }
+
+    inline T cosPhi(const Vec3<T> &w)
+    {
+        // why not use sphericalPhi? The reason lays in my notebook
+        T sintheta = sinTheta(w);
+        if(sintheta == 0) 
+            return 1;
+        return clamp<T>(w[0] / sintheta, -1, 1);
+    }
+    inline T sinPhi(const Vec3<T> &w)
+    {
+        T sintheta = sinTheta(w);
+        if(sintheta == 0)
+            return 0;
+        // cosPhi or sinPhi who gets 1, I think it's random
+        return clamp<T>(w[1] / sintheta, -1, 1);
+    }
 };
 
 typedef Vec3<float> Vec3f;
@@ -117,6 +162,18 @@ public:
         #endif
 
     }
+
+    Matrix44 transpose() const
+    {
+        Matrix44 transpMat;
+        for(uint8_t i=0; i<4; i++){
+            for(uint8_t j=0; j<4; j++){
+                transpMat[i][j] = m[j][i];
+            }
+        }
+        return transpMat;
+    }
+
 
     // initialize the coefficients of the matrix 
     // with the coefficients of the identity matrix
